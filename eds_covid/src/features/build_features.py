@@ -158,7 +158,7 @@ def calc_daily_values_all_countries(all_countries):
         df_daily['country'] = np.array(pd_daily[pd_daily['country']==each_country]['country'])
         df_daily_all = pd.concat([df_daily_all,df_daily])
 
-        return df_daily_all
+    return df_daily_all
 
 
 
@@ -167,7 +167,7 @@ if __name__ == '__main__':
     test_data_reg=np.array([2,4,6])
     result=get_doubling_time_via_regression(test_data_reg)
     print('the test slope is: '+str(result))
-    pd_JH_data=pd.read_csv('data/processed/COVID_relational_confirmed.csv',sep=';',parse_dates=[0])
+    pd_JH_data=pd.read_csv('../data/processed/COVID_relational_confirmed.csv',sep=';',parse_dates=[0])
     pd_JH_data=pd_JH_data.sort_values('date',ascending=True).copy()
 
     #test_structure=pd_JH_data[((pd_JH_data['country']=='US')|
@@ -176,17 +176,18 @@ if __name__ == '__main__':
     pd_result_larg=calc_filtered_data(pd_JH_data)
     pd_result_larg=calc_doubling_rate(pd_result_larg)
     pd_result_larg=calc_doubling_rate(pd_result_larg,'confirmed_filtered')
-    print(pd_result_larg.head())
+    
 
     mask=pd_result_larg['confirmed']>100
     pd_result_larg['confirmed_filtered_DR']=pd_result_larg['confirmed_filtered_DR'].where(mask, other=np.NaN)
+    pd_result_larg = pd_result_larg.reset_index()
 
     pd_JH_data_deaths=pd.read_csv('../data/processed/COVID_relational_deaths.csv',sep=';',parse_dates=[0])
     pd_JH_data_deaths=pd_JH_data_deaths.sort_values('date',ascending=True).reset_index(drop=True).copy()
     pd_DR_result_death = pd_JH_data_deaths[['state','country','deaths']].reset_index()
     pd_result_larg=pd.merge(pd_result_larg,pd_DR_result_death[['index','deaths']],on=['index'],how='left')
 
-    pd_result_larg.to_csv('data/processed/COVID_final_set.csv',sep=';',index=False)
+    pd_result_larg.to_csv('../data/processed/COVID_final_set.csv',sep=';',index=False)
 
     pd_JH_data_recov=pd.read_csv('../data/processed/COVID_relational_recovered.csv',sep=';',parse_dates=[0])
     pd_JH_data_recov=pd_JH_data_recov.sort_values('date',ascending=True).reset_index(drop=True).copy()
@@ -203,4 +204,4 @@ if __name__ == '__main__':
     df_daily_all.daily_deaths = df_daily_all.daily_deaths.mask(df_daily_all.daily_deaths.lt(0), 0)
     df_daily_all.to_csv('../data/processed/COVID_final_daily_set.csv',sep=';',index=False)
 
-    
+    print("Done")
